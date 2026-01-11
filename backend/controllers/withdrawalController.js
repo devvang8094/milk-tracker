@@ -17,7 +17,7 @@ import { query } from '../config/database.js';
  */
 export const addWithdrawal = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
     const { amount, date } = req.body;
 
     if (!amount || amount <= 0 || !date) {
@@ -56,7 +56,7 @@ export const addWithdrawal = async (req, res) => {
  */
 export const getWithdrawals = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
 
     const rows = await query(
       `
@@ -88,7 +88,7 @@ export const getWithdrawals = async (req, res) => {
  */
 export const updateWithdrawal = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
     const withdrawalId = req.params.id;
     const { amount, date } = req.body;
 
@@ -135,7 +135,7 @@ export const updateWithdrawal = async (req, res) => {
  */
 export const deleteWithdrawal = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
     const withdrawalId = req.params.id;
 
     const result = await query(

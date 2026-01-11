@@ -13,7 +13,7 @@ const authMiddleware = (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = { id: decoded.id };
+        req.user = { userId: decoded.userId };
         next();
     } catch (error) {
         console.error('Auth error:', error.message);

@@ -17,7 +17,7 @@ import { query } from '../config/database.js';
  */
 export const getEarningsHistory = async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const rows = await query(
             `
       SELECT 
@@ -76,7 +76,7 @@ export const getEarningsHistory = async (req, res) => {
  */
 export const getExpensesHistory = async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const rows = await query(
             `
       SELECT id, date, amount, description
@@ -104,7 +104,7 @@ export const getExpensesHistory = async (req, res) => {
  */
 export const getBalanceHistory = async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const rows = await query(
             `
             SELECT 
@@ -165,7 +165,7 @@ export const getBalanceHistory = async (req, res) => {
  */
 export const getRateHistory = async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const rows = await query(
             `
             SELECT DISTINCT ON (date) 
@@ -194,7 +194,7 @@ export const getRateHistory = async (req, res) => {
  */
 export const getWithdrawalsHistory = async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.userId;
         const rows = await query(
             `
       SELECT id, date, amount

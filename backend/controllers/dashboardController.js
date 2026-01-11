@@ -16,7 +16,7 @@ import { query } from '../config/database.js';
  */
 export const getDashboardStats = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
 
     // Total earnings from milk
     const incomeRows = await query(

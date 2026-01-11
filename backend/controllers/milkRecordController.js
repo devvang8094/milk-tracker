@@ -16,7 +16,7 @@ import { query } from '../config/database.js';
  */
 export const addMilkRecord = async (req, res) => {
   try {
-    const userId = req.userId || req.user.id;
+    const userId = req.user.userId;
     const { date, session, litres, fat_percentage } = req.body;
 
     if (!date || !session || !litres || !fat_percentage) {
@@ -82,7 +82,7 @@ export const addMilkRecord = async (req, res) => {
  */
 export const getMilkRecords = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
 
     const rows = await query(
       `
@@ -115,7 +115,7 @@ export const getMilkRecords = async (req, res) => {
  */
 export const updateMilkRecord = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
     const recordId = req.params.id;
     const { date, session, litres, fat_percentage } = req.body;
 
@@ -180,7 +180,7 @@ export const updateMilkRecord = async (req, res) => {
  */
 export const deleteMilkRecord = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
     const recordId = req.params.id;
 
     const result = await query(

@@ -17,7 +17,7 @@ import { query } from '../config/database.js';
  */
 export const addExpense = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
     const { amount, description, date } = req.body;
 
     if (!amount || amount <= 0 || !description || !date) {
@@ -56,7 +56,7 @@ export const addExpense = async (req, res) => {
  */
 export const getExpenses = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
 
     const rows = await query(
       `
@@ -88,7 +88,7 @@ export const getExpenses = async (req, res) => {
  */
 export const updateExpense = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
     const expenseId = req.params.id;
     const { amount, description, date } = req.body;
 
@@ -135,7 +135,7 @@ export const updateExpense = async (req, res) => {
  */
 export const deleteExpense = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user.userId;
     const expenseId = req.params.id;
 
     const result = await query(
