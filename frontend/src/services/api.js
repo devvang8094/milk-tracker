@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { API_BASE_URL } from '../config/api';
 
 // Helper to handle requests
 async function request(endpoint, options = {}) {
@@ -10,18 +10,23 @@ async function request(endpoint, options = {}) {
     ...options.headers,
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  // Construct URL with /api prefix as per instructions
+  // endpoint normally starts with / (e.g. /auth/login)
+  const url = `${API_BASE_URL}/api${endpoint}`;
+
+  const response = await fetch(url, {
     ...options,
     headers,
   });
 
-  const data = await response.json();
-
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    const text = await response.text();
+    throw new Error(text || 'Something went wrong');
   }
 
-  return data;
+  // Handle empty responses (e.g., 204 No Content) or verify if valid JSON
+  const text = await response.text();
+  return text ? JSON.parse(text) : {};
 }
 
 // AUTH
