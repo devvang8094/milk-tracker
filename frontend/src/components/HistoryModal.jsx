@@ -1,5 +1,6 @@
+```
 import React from 'react';
-import { X, Calendar, DollarSign, Droplet, Percent } from 'lucide-react';
+import { X, Calendar, Droplet, DollarSign, Percent, ArrowUpRight, ArrowDownLeft, Edit2, Trash2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function HistoryModal({ isOpen, onClose, title, data, type, loading }) {
@@ -36,7 +37,13 @@ export default function HistoryModal({ isOpen, onClose, title, data, type, loadi
                     ) : (
                         <div className="space-y-3">
                             {items.map((item, index) => (
-                                <HistoryItem key={item.id || index} item={item} type={type} />
+                                <HistoryItem 
+                                    key={item.id || index} 
+                                    item={item} 
+                                    type={type} 
+                                    onEdit={onEdit} 
+                                    onDelete={onDelete} 
+                                />
                             ))}
                         </div>
                     )}
@@ -46,9 +53,26 @@ export default function HistoryModal({ isOpen, onClose, title, data, type, loadi
     );
 }
 
-function HistoryItem({ item, type }) {
+function HistoryItem({ item, type, onEdit, onDelete }) {
     const { t } = useLanguage();
     const date = new Date(item.date).toLocaleDateString();
+
+    const ActionButtons = () => (
+        <div className="flex gap-2 ml-4">
+            <button 
+                onClick={(e) => { e.stopPropagation(); onEdit && onEdit(item); }}
+                className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+                <Edit2 size={16} />
+            </button>
+            <button 
+                onClick={(e) => { e.stopPropagation(); onDelete && onDelete(item); }}
+                className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            >
+                <Trash2 size={16} />
+            </button>
+        </div>
+    );
 
     if (type === 'balance') {
         const isCredit = item.type === 'credit';
@@ -69,25 +93,28 @@ function HistoryItem({ item, type }) {
         }
 
         return (
-            <div className={`p-3 bg-white border rounded-xl shadow-sm flex items-center justify-between ${isCredit ? 'border-green-100' : 'border-red-100'}`}>
+            <div className={`p - 3 bg - white border rounded - xl shadow - sm flex items - center justify - between ${ isCredit ? 'border-green-100' : 'border-red-100' } `}>
                 <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${bgClass}`}>
+                    <div className={`p - 2 rounded - lg ${ bgClass } `}>
                         <Icon size={18} />
                     </div>
                     <div>
                         <p className="text-sm font-medium text-slate-900">{date}</p>
                         <p className="text-xs text-slate-500 capitalize">
-                            {displayDesc}
+                           {displayDesc}
                         </p>
                     </div>
                 </div>
-                <div className="text-right">
-                    <p className={`font-bold ${colorClass}`}>
-                        {isCredit ? '+' : '-'} ₹{parseFloat(item.amount).toFixed(2)}
-                    </p>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">
-                        {item.type === 'credit' ? t('credit') : t('debit')}
-                    </p>
+                <div className="flex items-center">
+                    <div className="text-right">
+                        <p className={`font - bold ${ colorClass } `}>
+                            {isCredit ? '+' : '-'} ₹{parseFloat(item.amount).toFixed(2)}
+                        </p>
+                        <p className="text-[10px] text-slate-400 uppercase tracking-wider">
+                            {item.type === 'credit' ? t('credit') : t('debit')}
+                        </p>
+                    </div>
+                    <ActionButtons />
                 </div>
             </div>
         );
@@ -98,13 +125,20 @@ function HistoryItem({ item, type }) {
             <div className="p-3 bg-white border border-blue-50 rounded-xl shadow-sm flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                        <Percent size={18} />
+                       <Percent size={18} />
                     </div>
                     <div>
                         <p className="text-sm font-medium text-slate-900">{date}</p>
                         <p className="text-xs text-slate-500">{t('fat_price_label')}</p>
                     </div>
                 </div>
+                {/* Rate history is usually read-only or handled via config, but we can allow delete if needed. 
+                    However, rate items in history might not be delete-able if they are just logs.
+                    Assuming rate history endpoint returns items with IDs. 
+                    Our backend /history/rate just returns log. 
+                    Actually, it selects Distinct logs. 
+                    User: "Milk records, Expenses, Withdrawals" -> these are the ones to unlock.
+                    Rate is separate. Skip actions for Rate. */}
                 <p className="font-bold text-slate-900">₹{item.rate}/fat</p>
             </div>
         );
@@ -114,7 +148,7 @@ function HistoryItem({ item, type }) {
         return (
             <div className="p-3 bg-white border border-slate-100 rounded-xl shadow-sm flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${item.session === 'morning' ? 'bg-yellow-100 text-yellow-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                    <div className={`p - 2 rounded - lg ${ item.session === 'morning' ? 'bg-yellow-100 text-yellow-600' : 'bg-indigo-100 text-indigo-600' } `}>
                         <Droplet size={18} />
                     </div>
                     <div>
@@ -128,9 +162,12 @@ function HistoryItem({ item, type }) {
                         </div>
                     </div>
                 </div>
-                <div className="text-right">
-                    <p className="font-bold text-slate-900">₹{item.amount}</p>
-                    <p className="text-xs text-slate-400">@{item.rate_per_fat}/fat</p>
+                <div className="flex items-center">
+                    <div className="text-right">
+                        <p className="font-bold text-slate-900">₹{item.amount}</p>
+                        <p className="text-xs text-slate-400">@{item.rate_per_fat}/fat</p>
+                    </div>
+                    <ActionButtons />
                 </div>
             </div>
         );
@@ -148,7 +185,10 @@ function HistoryItem({ item, type }) {
                         <p className="text-xs text-slate-500 line-clamp-1">{item.description}</p>
                     </div>
                 </div>
-                <p className="font-bold text-red-600">- ₹{item.amount}</p>
+                <div className="flex items-center">
+                    <p className="font-bold text-red-600">- ₹{item.amount}</p>
+                    <ActionButtons />
+                </div>
             </div>
         );
     }
@@ -165,10 +205,14 @@ function HistoryItem({ item, type }) {
                         <p className="text-xs text-slate-400">{t('withdrawal')}</p>
                     </div>
                 </div>
-                <p className="font-bold text-purple-600">- ₹{item.amount}</p>
+                <div className="flex items-center">
+                    <p className="font-bold text-purple-600">- ₹{item.amount}</p>
+                    <ActionButtons />
+                </div>
             </div>
         );
     }
 
     return null;
 }
+```

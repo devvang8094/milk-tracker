@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { addExpense, getExpenses, getDashboardStats, updateExpense, deleteExpense } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import { Receipt, History, Edit2, Trash2, XCircle, Save, IndianRupee, Calendar, FileText } from 'lucide-react';
@@ -14,9 +15,14 @@ function AddExpense() {
   const [editingId, setEditingId] = useState(null);
   const { t } = useLanguage();
 
+  const location = useLocation();
+
   // Fetch history and balance
   useEffect(() => {
     loadData();
+    if (location.state?.record && location.state?.editMode) {
+      handleEdit(location.state.record);
+    }
   }, []);
 
   const loadData = async () => {

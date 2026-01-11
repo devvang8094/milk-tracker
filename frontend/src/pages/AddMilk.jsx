@@ -26,6 +26,9 @@ function AddMilk() {
 
   useEffect(() => {
     loadData();
+    if (location.state?.record && location.state?.editMode) {
+      handleEdit(location.state.record);
+    }
   }, []);
 
   const loadData = async () => {

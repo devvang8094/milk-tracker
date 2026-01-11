@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { addWithdrawal, getWithdrawals, getDashboardStats, updateWithdrawal, deleteWithdrawal } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import { Wallet, History, ArrowDownLeft, Edit2, Trash2, XCircle, Save } from 'lucide-react';
@@ -13,9 +14,14 @@ function Withdraw() {
     const [editingId, setEditingId] = useState(null);
     const { t } = useLanguage();
 
+    const location = useLocation();
+
     // Fetch history and balance
     useEffect(() => {
         loadData();
+        if (location.state?.record && location.state?.editMode) {
+            handleEdit(location.state.record);
+        }
     }, []);
 
     const loadData = async () => {
