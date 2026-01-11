@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getDashboardStats, getFatPrice, updateFatPrice, fetchEarningsHistory, fetchExpensesHistory, fetchWithdrawalsHistory, fetchBalanceHistory, fetchRateHistory } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowUpRight, ArrowDownLeft, DollarSign, Wallet, Edit2, Check, X, Percent } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import HistoryModal from '../components/HistoryModal';
@@ -31,9 +31,11 @@ function Dashboard() {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
+  const location = useLocation(); // Hook for route changes
+
   useEffect(() => {
     loadData();
-  }, []);
+  }, [location.key]); // Refetch when location key changes (navigation)
 
   async function loadData() {
     try {
