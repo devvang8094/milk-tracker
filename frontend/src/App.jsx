@@ -31,7 +31,7 @@ export default function App() {
       </Route>
 
       {/* Catch All */}
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }

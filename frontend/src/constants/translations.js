@@ -100,6 +100,11 @@ export const translations = {
         fat_price_help: "This price is used to calculate the milk amount automatically based on fat percentage.",
         save_changes: "Save Changes",
         settings_updated: "Settings updated successfully!",
+        danger_zone: "Danger Zone",
+        delete_account_title: "Delete Account",
+        delete_account_desc: "This action will permanently delete your account and all related data.",
+        delete_account_btn: "Delete Account",
+        delete_confirm_msg: "Are you definitely sure? This action is irreversible.",
     },
 
     hi: {
@@ -203,5 +208,10 @@ export const translations = {
         fat_price_help: "यह भाव दूध की राशि निकालने के लिए उपयोग होता है।",
         save_changes: "सेव करें",
         settings_updated: "सेटिंग सेव हो गई!",
+        danger_zone: "खतरे का क्षेत्र",
+        delete_account_title: "खाता हटाएं",
+        delete_account_desc: "यह क्रिया आपका खाता और सारा डेटा स्थायी रूप से हटा देगी।",
+        delete_account_btn: "खाता हटाएं",
+        delete_confirm_msg: "क्या आप वाकई यह करना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।",
     }
 };
