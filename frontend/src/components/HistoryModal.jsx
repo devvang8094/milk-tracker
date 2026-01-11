@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Calendar, DollarSign, Droplet } from 'lucide-react';
+import { X, Calendar, DollarSign, Droplet, Percent } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function HistoryModal({ isOpen, onClose, title, data, type, loading }) {
@@ -48,6 +48,52 @@ export default function HistoryModal({ isOpen, onClose, title, data, type, loadi
 
 function HistoryItem({ item, type }) {
     const date = new Date(item.date).toLocaleDateString();
+
+    if (type === 'balance') {
+        const isCredit = item.type === 'credit';
+        const colorClass = isCredit ? 'text-green-600' : 'text-red-600';
+        const bgClass = isCredit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600';
+        const Icon = isCredit ? Droplet : DollarSign; // Droplet for milk, Dollar for money out
+
+        return (
+            <div className={`p-3 bg-white border rounded-xl shadow-sm flex items-center justify-between ${isCredit ? 'border-green-100' : 'border-red-100'}`}>
+                <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${bgClass}`}>
+                        <Icon size={18} />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-slate-900">{date}</p>
+                        <p className="text-xs text-slate-500 capitalize">
+                            {item.source === 'milk' ? `${item.description} Milk` : item.description || item.source}
+                        </p>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <p className={`font-bold ${colorClass}`}>
+                        {isCredit ? '+' : '-'} ₹{parseFloat(item.amount).toFixed(2)}
+                    </p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">{item.type}</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (type === 'rate') {
+        return (
+            <div className="p-3 bg-white border border-blue-50 rounded-xl shadow-sm flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                        <Percent size={18} />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-slate-900">{date}</p>
+                        <p className="text-xs text-slate-500">Rate Record</p>
+                    </div>
+                </div>
+                <p className="font-bold text-slate-900">₹{item.rate}/fat</p>
+            </div>
+        );
+    }
 
     if (type === 'earnings') {
         return (

@@ -98,6 +98,97 @@ export const getExpensesHistory = async (req, res) => {
 };
 
 /**
+ * GET /api/history/balance
+ * Returns: Virtual Ledger (Credits and Debits)
+ * Combined from milk_records (Credit), expenses (Debit), withdrawals (Debit)
+ */
+export const getBalanceHistory = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const rows = await query(
+            `
+            SELECT 
+                id, 
+                'credit' as type, 
+                'milk' as source, 
+                (litres * fat_percentage * rate_per_fat) as amount, 
+                date, 
+                created_at,
+                session as description -- Reuse description field for consistency
+            FROM milk_records 
+            WHERE user_id = $1
+
+            UNION ALL
+
+            SELECT 
+                id, 
+                'debit' as type, 
+                'expense' as source, 
+                amount, 
+                date, 
+                created_at,
+                description
+            FROM expenses 
+            WHERE user_id = $1
+
+            UNION ALL
+
+            SELECT 
+                id, 
+                'debit' as type, 
+                'withdrawal' as source, 
+                amount, 
+                date, 
+                created_at,
+                'Withdrawal' as description
+            FROM withdrawals 
+            WHERE user_id = $1
+
+            ORDER BY date DESC, created_at DESC
+            `,
+            [userId]
+        );
+
+        res.json({
+            success: true,
+            data: rows
+        });
+    } catch (error) {
+        console.error('Balance History Error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+/**
+ * GET /api/history/rate
+ * Returns: Rate history derived from milk records
+ */
+export const getRateHistory = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const rows = await query(
+            `
+            SELECT DISTINCT ON (date) 
+                date, 
+                rate_per_fat as rate
+            FROM milk_records
+            WHERE user_id = $1
+            ORDER BY date DESC
+            `,
+            [userId]
+        );
+
+        res.json({
+            success: true,
+            data: rows
+        });
+    } catch (error) {
+        console.error('Rate History Error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+/**
  * GET /api/history/withdrawals
  * Returns: Date, Amount
  */

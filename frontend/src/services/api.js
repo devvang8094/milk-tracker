@@ -148,3 +148,11 @@ export async function fetchExpensesHistory() {
 export async function fetchWithdrawalsHistory() {
   return request('/history/withdrawals');
 }
+
+export async function fetchBalanceHistory() {
+  return request('/history/balance');
+}
+
+export async function fetchRateHistory() {
+  return request('/history/rate');
+}

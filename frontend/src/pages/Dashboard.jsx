@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getDashboardStats, getFatPrice, updateFatPrice, fetchEarningsHistory, fetchExpensesHistory, fetchWithdrawalsHistory } from '../services/api';
+import { getDashboardStats, getFatPrice, updateFatPrice, fetchEarningsHistory, fetchExpensesHistory, fetchWithdrawalsHistory, fetchBalanceHistory, fetchRateHistory } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, ArrowDownLeft, DollarSign, Wallet, Edit2, Check, X, Percent } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -110,6 +110,12 @@ function Dashboard() {
       } else if (type === 'withdrawals') {
         title = t('total_withdrawn');
         res = await fetchWithdrawalsHistory();
+      } else if (type === 'balance') {
+        title = t('available_balance');
+        res = await fetchBalanceHistory();
+      } else if (type === 'rate') {
+        title = t('fat_price_label');
+        res = await fetchRateHistory();
       }
 
       if (res && res.success && Array.isArray(res.data)) {
@@ -177,118 +183,139 @@ function Dashboard() {
                 step="0.1"
                 value={tempRate}
                 onChange={(e) => setTempRate(e.target.value)}
-                className="w-full px-2 py-1 text-slate-900 text-lg font-bold rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
-              />
-              <button onClick={handleSaveRate} disabled={rateLoading} className="p-1.5 bg-green-100 text-green-700 rounded hover:bg-green-200">
-                <Check size={18} />
-              </button>
-              <button onClick={() => { setIsEditingRate(false); setTempRate(ratePerFat); }} className="p-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                <X size={18} />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-end justify-between">
-              <h3 className="text-2xl font-bold text-slate-900">₹ {ratePerFat}</h3>
-              <button onClick={() => setIsEditingRate(true)} className="text-blue-600 hover:bg-blue-100 p-1.5 rounded-lg transition-colors" title="Edit Rate">
-                <Edit2 size={16} />
-              </button>
-            </div>
-          )}
-        </div>
+                {/* FAT RATE */}
+        <div onClick={() => handleCardClick('rate')} className="card p-5 bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-none shadow-lg shadow-indigo-900/20 xl:col-span-1 cursor-pointer hover:shadow-xl transition-all active:scale-[0.98]">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-indigo-100 text-sm font-medium mb-1">{t('fat_price_label')}</p>
+                    {isEditingRate ? (
+                      <div className="flex items-center gap-2 mt-1">
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={tempRate}
+                          onChange={(e) => setTempRate(e.target.value)}
+                          className="w-full px-2 py-1 text-slate-900 text-lg font-bold rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          autoFocus
+                        />
+                        <button onClick={handleSaveRate} disabled={rateLoading} className="p-1.5 bg-green-100 text-green-700 rounded hover:bg-green-200">
+                          <Check size={18} />
+                        </button>
+                        <button onClick={() => { setIsEditingRate(false); setTempRate(ratePerFat); }} className="p-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                          <X size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <h3 className="text-3xl font-bold">₹ {ratePerFat}</h3>
+                    )}
+                  </div>
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <Percent className="text-white" size={24} />
+                  </div>
+                </div>
+                {!isEditingRate && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setIsEditingRate(true); }} // Prevent card click
+                    className="mt-3 text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 backdrop-blur-sm"
+                  >
+                    <Edit2 size={12} />
+                    {t('fat_rate_config')}
+                  </button>
+                )}
+              </div>
 
-        {/* BALANCE */}
-        <div className={`card p-5 text-white border-none shadow-lg xl:col-span-1 ${stats.availableBalance < 0
-          ? 'bg-gradient-to-br from-red-600 to-orange-700 shadow-red-900/20'
-          : 'bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-900/20'
-          }`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-white/80 text-sm font-medium mb-1">{t('available_balance')}</p>
-              <h3 className="text-3xl font-bold">₹ {stats.availableBalance.toLocaleString()}</h3>
-            </div>
-            <div className="p-2 bg-white/20 rounded-lg">
-              <Wallet className="text-white" size={24} />
-            </div>
-          </div>
-          {stats.availableBalance < 0 && (
-            <div className="mt-3 bg-black/20 text-white text-xs px-2 py-1 rounded inline-block font-bold">
-              {t('overdraft_warning').replace('{amount}', Math.abs(stats.availableBalance).toLocaleString())}
-            </div>
-          )}
-        </div>
+              {/* BALANCE */}
+              <div onClick={() => handleCardClick('balance')} className={`card p-5 text-white border-none shadow-lg xl:col-span-1 cursor-pointer hover:shadow-xl transition-all active:scale-[0.98] ${stats.availableBalance < 0
+                ? 'bg-gradient-to-br from-red-600 to-orange-700 shadow-red-900/20'
+                : 'bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-900/20'
+                }`}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-white/80 text-sm font-medium mb-1">{t('available_balance')}</p>
+                    <h3 className="text-3xl font-bold">₹ {stats.availableBalance.toLocaleString()}</h3>
+                  </div>
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <Wallet className="text-white" size={24} />
+                  </div>
+                </div>
+                {stats.availableBalance < 0 && (
+                  <div className="mt-3 bg-black/20 text-white text-xs px-2 py-1 rounded inline-block font-bold">
+                    {t('overdraft_warning').replace('{amount}', Math.abs(stats.availableBalance).toLocaleString())}
+                  </div>
+                )}
+              </div>
 
-        {/* EARNINGS */}
-        <div onClick={() => handleCardClick('earnings')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-green-100 text-green-600 rounded-lg">
-              <DollarSign size={20} />
-            </div>
-            <p className="text-slate-500 text-sm font-medium">{t('total_earnings')}</p>
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900">₹ {stats.totalEarning.toLocaleString()}</h3>
-        </div>
+              {/* EARNINGS */}
+              <div onClick={() => handleCardClick('earnings')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-green-100 text-green-600 rounded-lg">
+                    <DollarSign size={20} />
+                  </div>
+                  <p className="text-slate-500 text-sm font-medium">{t('total_earnings')}</p>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900">₹ {stats.totalEarning.toLocaleString()}</h3>
+              </div>
 
-        {/* EXPENSES */}
-        <div onClick={() => handleCardClick('expenses')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-red-100 text-red-600 rounded-lg">
-              <ArrowUpRight size={20} />
-            </div>
-            <p className="text-slate-500 text-sm font-medium">{t('total_expenses')}</p>
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900">₹ {stats.totalExpenses.toLocaleString()}</h3>
-        </div>
+              {/* EXPENSES */}
+              <div onClick={() => handleCardClick('expenses')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-red-100 text-red-600 rounded-lg">
+                    <ArrowUpRight size={20} />
+                  </div>
+                  <p className="text-slate-500 text-sm font-medium">{t('total_expenses')}</p>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900">₹ {stats.totalExpenses.toLocaleString()}</h3>
+              </div>
 
-        {/* WITHDRAWN */}
-        <div onClick={() => handleCardClick('withdrawals')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-yellow-100 text-yellow-600 rounded-lg">
-              <ArrowDownLeft size={20} />
+              {/* WITHDRAWN */}
+              <div onClick={() => handleCardClick('withdrawals')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-yellow-100 text-yellow-600 rounded-lg">
+                    <ArrowDownLeft size={20} />
+                  </div>
+                  <p className="text-slate-500 text-sm font-medium">{t('total_withdrawn')}</p>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900">₹ {stats.totalWithdrawn.toLocaleString()}</h3>
+              </div>
             </div>
-            <p className="text-slate-500 text-sm font-medium">{t('total_withdrawn')}</p>
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900">₹ {stats.totalWithdrawn.toLocaleString()}</h3>
-        </div>
-      </div>
 
       {/* Quick Actions */}
-      <h2 className="text-lg font-bold text-slate-800 mt-2">{t('quick_actions')}</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button
-          onClick={() => navigate('/add-milk', { state: { session: 'morning' } })}
-          className="flex flex-col items-center justify-center p-4 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 rounded-xl transition-all group"
-        >
-          <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">☀️</span>
-          <span className="font-semibold text-yellow-800">{t('morning_milk')}</span>
-        </button>
+          <h2 className="text-lg font-bold text-slate-800 mt-2">{t('quick_actions')}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button
+              onClick={() => navigate('/add-milk', { state: { session: 'morning' } })}
+              className="flex flex-col items-center justify-center p-4 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 rounded-xl transition-all group"
+            >
+              <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">☀️</span>
+              <span className="font-semibold text-yellow-800">{t('morning_milk')}</span>
+            </button>
 
-        <button
-          onClick={() => navigate('/add-milk', { state: { session: 'night' } })}
-          className="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all group"
-        >
-          <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">🌙</span>
-          <span className="font-semibold text-indigo-800">{t('night_milk')}</span>
-        </button>
+            <button
+              onClick={() => navigate('/add-milk', { state: { session: 'night' } })}
+              className="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all group"
+            >
+              <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">🌙</span>
+              <span className="font-semibold text-indigo-800">{t('night_milk')}</span>
+            </button>
 
-        <button
-          onClick={() => navigate('/add-expense')}
-          className="flex flex-col items-center justify-center p-4 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-all group"
-        >
-          <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">🧾</span>
-          <span className="font-semibold text-red-800">{t('add_expense')}</span>
-        </button>
+            <button
+              onClick={() => navigate('/add-expense')}
+              className="flex flex-col items-center justify-center p-4 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-all group"
+            >
+              <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">🧾</span>
+              <span className="font-semibold text-red-800">{t('add_expense')}</span>
+            </button>
 
-        <button
-          onClick={() => navigate('/withdraw')}
-          className="flex flex-col items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl transition-all group"
-        >
-          <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">💸</span>
-          <span className="font-semibold text-purple-800">{t('withdraw')}</span>
-        </button>
-      </div>
-    </div>
-  );
+            <button
+              onClick={() => navigate('/withdraw')}
+              className="flex flex-col items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl transition-all group"
+            >
+              <span className="text-2xl mb-2 group-hover:scale-110 transition-transform">💸</span>
+              <span className="font-semibold text-purple-800">{t('withdraw')}</span>
+            </button>
+          </div>
+        </div>
+        );
 }
 
-export default Dashboard;
+        export default Dashboard;
