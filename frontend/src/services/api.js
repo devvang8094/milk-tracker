@@ -11,6 +11,9 @@ async function request(endpoint, options = {}) {
   const response = await fetch(`${BASE_URL}/api${endpoint}`, {
     headers: {
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
       ...authHeader,
     },
     ...options,
@@ -157,4 +160,11 @@ export async function fetchWithdrawalsHistory() {
 // Actually, for Rate, I will keep /history/rate as there is no standard CRUD for rate history yet (it is derived).
 export async function fetchRateHistory() {
   return request('/history/rate');
+}
+
+// USER MANAGEMENT
+export async function deleteUserAccount() {
+  return request('/auth/profile', {
+    method: 'DELETE',
+  });
 }

@@ -109,6 +109,36 @@ function Profile() {
                         </button>
                     </form>
                 </div>
+
+                {/* DANGER ZONE */}
+                <div className="mt-8 pt-8 border-t border-red-100">
+                    <h3 className="font-bold text-red-600 mb-2">{t('danger_zone') || 'Danger Zone'}</h3>
+                    <div className="p-4 bg-red-50 rounded-xl border border-red-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <h4 className="font-semibold text-red-900">{t('delete_account_title') || 'Delete Account'}</h4>
+                            <p className="text-sm text-red-700">{t('delete_account_desc') || 'Permanently remove your account and all data. This cannot be undone.'}</p>
+                        </div>
+                        <button
+                            onClick={async () => {
+                                if (window.confirm(t('delete_confirm_msg') || 'Are you definitely sure? This action is irreversible.')) {
+                                    try {
+                                        setLoading(true);
+                                        const { deleteUserAccount } = await import('../services/api');
+                                        await deleteUserAccount();
+                                        localStorage.clear();
+                                        window.location.href = '/login';
+                                    } catch (err) {
+                                        alert('Failed to delete: ' + err.message);
+                                        setLoading(false);
+                                    }
+                                }
+                            }}
+                            className="btn bg-white text-red-600 border border-red-200 hover:bg-red-50 whitespace-nowrap"
+                        >
+                            {t('delete_account_btn') || 'Delete Account'}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

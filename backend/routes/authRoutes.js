@@ -6,7 +6,8 @@
  */
 
 import express from 'express';
-import { signup, login } from '../controllers/authController.js';
+import { signup, login, deleteUser } from '../controllers/authController.js';
+import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -15,5 +16,8 @@ router.post('/signup', signup);
 
 // Login route
 router.post('/login', login);
+
+// Delete Account (Protected)
+router.delete('/profile', authenticate, deleteUser);
 
 export default router;

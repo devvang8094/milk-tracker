@@ -169,3 +169,36 @@ export const login = async (req, res) => {
     });
   }
 };
+
+/**
+ * DELETE ACCOUNT
+ * DELETE /api/auth/profile
+ * Protected
+ */
+export const deleteUser = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Delete related data first
+    await query('DELETE FROM milk_records WHERE user_id = $1', [userId]);
+    await query('DELETE FROM expenses WHERE user_id = $1', [userId]);
+    await query('DELETE FROM withdrawals WHERE user_id = $1', [userId]);
+    await query('DELETE FROM fat_prices WHERE user_id = $1', [userId]);
+
+    // Delete user
+    await query('DELETE FROM users WHERE id = $1', [userId]);
+
+    res.json({
+      success: true,
+      message: 'Account deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
