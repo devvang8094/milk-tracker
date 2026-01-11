@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { getDashboardStats, getFatPrice, updateFatPrice } from '../services/api';
+import { getDashboardStats, getFatPrice, updateFatPrice, fetchEarningsHistory, fetchExpensesHistory, fetchWithdrawalsHistory } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, ArrowDownLeft, DollarSign, Wallet, Edit2, Check, X, Percent } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import HistoryModal from '../components/HistoryModal';
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -17,6 +18,13 @@ function Dashboard() {
   const [isEditingRate, setIsEditingRate] = useState(false);
   const [tempRate, setTempRate] = useState('');
   const [rateLoading, setRateLoading] = useState(false);
+
+  // History Modal State
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyData, setHistoryData] = useState([]);
+  const [historyTitle, setHistoryTitle] = useState('');
+  const [historyType, setHistoryType] = useState('');
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -81,8 +89,47 @@ function Dashboard() {
     );
   }
 
+  const handleCardClick = async (type) => {
+    setHistoryOpen(true);
+    setHistoryLoading(true);
+    setHistoryData([]);
+
+    try {
+      let res;
+      if (type === 'earnings') {
+        setHistoryTitle(t('total_earnings'));
+        setHistoryType('earnings');
+        res = await fetchEarningsHistory();
+      } else if (type === 'expenses') {
+        setHistoryTitle(t('total_expenses'));
+        setHistoryType('expenses');
+        res = await fetchExpensesHistory();
+      } else if (type === 'withdrawals') {
+        setHistoryTitle(t('total_withdrawn'));
+        setHistoryType('withdrawals');
+        res = await fetchWithdrawalsHistory();
+      }
+
+      if (res && res.success) {
+        setHistoryData(res.data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      <HistoryModal
+        isOpen={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        title={historyTitle}
+        data={historyData}
+        type={historyType}
+        loading={historyLoading}
+      />
       {/* Welcome Section */}
       <div className="flex items-center justify-between">
         <div>
@@ -155,7 +202,7 @@ function Dashboard() {
         </div>
 
         {/* EARNINGS */}
-        <div className="card p-5">
+        <div onClick={() => handleCardClick('earnings')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-green-100 text-green-600 rounded-lg">
               <DollarSign size={20} />
@@ -166,7 +213,7 @@ function Dashboard() {
         </div>
 
         {/* EXPENSES */}
-        <div className="card p-5">
+        <div onClick={() => handleCardClick('expenses')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-red-100 text-red-600 rounded-lg">
               <ArrowUpRight size={20} />
@@ -177,7 +224,7 @@ function Dashboard() {
         </div>
 
         {/* WITHDRAWN */}
-        <div className="card p-5">
+        <div onClick={() => handleCardClick('withdrawals')} className="card p-5 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-yellow-100 text-yellow-600 rounded-lg">
               <ArrowDownLeft size={20} />

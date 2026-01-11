@@ -130,3 +130,16 @@ export async function updateFatPrice(price) {
     body: JSON.stringify({ ratePerFat: price }),
   });
 }
+
+// HISTORY (New)
+export async function fetchEarningsHistory() {
+  return request('/history/earnings');
+}
+
+export async function fetchExpensesHistory() {
+  return request('/history/expenses');
+}
+
+export async function fetchWithdrawalsHistory() {
+  return request('/history/withdrawals');
+}

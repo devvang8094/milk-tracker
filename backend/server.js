@@ -60,6 +60,10 @@ app.use('/api/withdrawals', withdrawalRoutes);
 //dashboard
 app.use('/api/dashboard', dashboardRoutes);
 
+// History Routes (New)
+import historyRoutes from './routes/historyRoutes.js';
+app.use('/api/history', historyRoutes);
+
 // Temporary route placeholders (we wire real routes later)
 app.use('/api', (req, res) => {
   res.status(404).json({
