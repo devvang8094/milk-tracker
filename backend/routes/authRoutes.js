@@ -7,7 +7,7 @@
 
 import express from 'express';
 import { signup, login, deleteUser } from '../controllers/authController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
+import authenticate from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
