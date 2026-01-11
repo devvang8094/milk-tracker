@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getDashboardStats, getFatPrice, updateFatPrice, fetchEarningsHistory, fetchExpensesHistory, fetchWithdrawalsHistory, fetchBalanceHistory, fetchRateHistory, deleteMilkRecord, deleteExpense, deleteWithdrawal } from '../services/api';
+import { getDashboardStats, getFatPrice, updateFatPrice, fetchEarningsHistory, fetchExpensesHistory, fetchWithdrawalsHistory, fetchRateHistory, deleteMilkRecord, deleteExpense, deleteWithdrawal } from '../services/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowUpRight, ArrowDownLeft, DollarSign, Wallet, Edit2, Check, X, Percent } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';

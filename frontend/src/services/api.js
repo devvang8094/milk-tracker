@@ -8,7 +8,7 @@ async function request(endpoint, options = {}) {
     ? { Authorization: `Bearer ${token}` }
     : {};
 
-  const response = await fetch(`${BASE_URL}/api${endpoint}`, {
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
