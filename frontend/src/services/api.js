@@ -1,33 +1,25 @@
 ```javascript
-import { API_BASE_URL } from '../config/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Helper to handle requests
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('token');
 
-  const authHeader = token ? { 'Authorization': `Bearer ${ token } ` } : {};
+  const authHeader = token
+    ? { Authorization: `Bearer ${ token } ` }
+    : {};
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0',
-    ...authHeader,
-    ...options.headers,
-  };
-
-  // Construct URL with /api prefix as per instructions
-  // endpoint normally starts with / (e.g. /auth/login)
-  const url = `${ API_BASE_URL }/api${endpoint}`;
-
-const response = await fetch(url, {
-  ...options,
-  headers,
-});
+  const response = await fetch(`${ BASE_URL }/api${endpoint}`, {
+headers: {
+  'Content-Type': 'application/json',
+      ...authHeader,
+    },
+    ...options,
+  });
 
 if (!response.ok) {
   const text = await response.text();
-  throw new Error(text || 'Something went wrong');
+  throw new Error(text || 'API request failed');
 }
 
 // Handle empty responses (e.g., 204 No Content) or verify if valid JSON
