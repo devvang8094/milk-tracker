@@ -90,31 +90,48 @@ function Dashboard() {
   }
 
   const handleCardClick = async (type) => {
-    setHistoryOpen(true);
-    setHistoryLoading(true);
-    setHistoryData([]);
+    // 1. Show loading state (optional, implies cursor wait or similar, but for now just logic)
+    // If we want to show loading INSIDE modal, we must open it first.
+    // BUT prompt says: "Fetch history -> Set state -> THEN open modal".
+    // So we will load data first.
+
+    setHistoryLoading(true); // Can use this to show a spinner on the button if we bound it, or global
 
     try {
       let res;
+      let title = '';
+
       if (type === 'earnings') {
-        setHistoryTitle(t('total_earnings'));
-        setHistoryType('earnings');
+        title = t('total_earnings');
         res = await fetchEarningsHistory();
       } else if (type === 'expenses') {
-        setHistoryTitle(t('total_expenses'));
-        setHistoryType('expenses');
+        title = t('total_expenses');
         res = await fetchExpensesHistory();
       } else if (type === 'withdrawals') {
-        setHistoryTitle(t('total_withdrawn'));
-        setHistoryType('withdrawals');
+        title = t('total_withdrawn');
         res = await fetchWithdrawalsHistory();
       }
 
-      if (res && res.success) {
-        setHistoryData(res.data);
+      if (res && res.success && Array.isArray(res.data)) {
+        // 2. Map & Sort
+        const sortedData = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        setHistoryTitle(title);
+        setHistoryType(type);
+        setHistoryData(sortedData);
+
+        // 3. Open Modal
+        setHistoryOpen(true);
+      } else {
+        // Fallback for empty or invalid
+        setHistoryTitle(title);
+        setHistoryType(type);
+        setHistoryData([]);
+        setHistoryOpen(true);
       }
     } catch (e) {
       console.error(e);
+      alert('Failed to load history');
     } finally {
       setHistoryLoading(false);
     }

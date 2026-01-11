@@ -7,6 +7,9 @@ export default function HistoryModal({ isOpen, onClose, title, data, type, loadi
 
     if (!isOpen) return null;
 
+    // Safety check
+    const items = Array.isArray(data) ? data : [];
+
     return (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="w-full md:w-[600px] h-[80vh] md:h-[600px] bg-white rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300">
@@ -25,14 +28,14 @@ export default function HistoryModal({ isOpen, onClose, title, data, type, loadi
                         <div className="flex justify-center items-center h-full text-slate-400">
                             <div className="animate-pulse">Loading history...</div>
                         </div>
-                    ) : data.length === 0 ? (
+                    ) : items.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
                             <Calendar size={48} className="opacity-20" />
                             <p>No records found</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {data.map((item, index) => (
+                            {items.map((item, index) => (
                                 <HistoryItem key={item.id || index} item={item} type={type} />
                             ))}
                         </div>
