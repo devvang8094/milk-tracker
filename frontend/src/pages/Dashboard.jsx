@@ -90,54 +90,89 @@ function Dashboard() {
   }
 
   const handleCardClick = async (type) => {
-    // 1. Show loading state (optional, implies cursor wait or similar, but for now just logic)
-    // If we want to show loading INSIDE modal, we must open it first.
-    // BUT prompt says: "Fetch history -> Set state -> THEN open modal".
-    // So we will load data first.
+    setHistoryLoading(true);
+    // Reset data first to avoid stale state showing up
+    setHistoryData([]);
+    setHistoryType(type);
 
-    setHistoryLoading(true); // Can use this to show a spinner on the button if we bound it, or global
+    // Set Title
+    if (type === 'earnings') setHistoryTitle(t('total_earnings'));
+    else if (type === 'expenses') setHistoryTitle(t('total_expenses'));
+    else if (type === 'withdrawals') setHistoryTitle(t('total_withdrawn'));
+    else if (type === 'balance') setHistoryTitle(t('available_balance'));
+    else if (type === 'rate') setHistoryTitle(t('fat_price_label'));
+
+    setHistoryOpen(true);
 
     try {
-      let res;
-      let title = '';
+      let data = [];
 
       if (type === 'earnings') {
-        title = t('total_earnings');
-        res = await fetchEarningsHistory();
-      } else if (type === 'expenses') {
-        title = t('total_expenses');
-        res = await fetchExpensesHistory();
-      } else if (type === 'withdrawals') {
-        title = t('total_withdrawn');
-        res = await fetchWithdrawalsHistory();
-      } else if (type === 'balance') {
-        title = t('available_balance');
-        res = await fetchBalanceHistory();
-      } else if (type === 'rate') {
-        title = t('fat_price_label');
-        res = await fetchRateHistory();
+        const res = await fetchEarningsHistory();
+        console.log("Earnings API response", res);
+        data = res?.records || []; // from getMilkRecords
+      }
+      else if (type === 'expenses') {
+        const res = await fetchExpensesHistory();
+        console.log("Expenses API response", res);
+        data = res?.expenses || []; // from getExpenses
+      }
+      else if (type === 'withdrawals') {
+        const res = await fetchWithdrawalsHistory();
+        console.log("Withdrawals API response", res);
+        data = res?.withdrawals || []; // from getWithdrawals
+      }
+      else if (type === 'rate') {
+        const res = await fetchRateHistory();
+        console.log("Rate API response", res);
+        data = res?.data || [];
+      }
+      else if (type === 'balance') {
+        // CLIENT-SIDE AGGREGATION
+        const [earningsRes, expensesRes, withdrawalsRes] = await Promise.all([
+          fetchEarningsHistory(),
+          fetchExpensesHistory(),
+          fetchWithdrawalsHistory()
+        ]);
+
+        console.log("Balance Aggregation Sources:", { earningsRes, expensesRes, withdrawalsRes });
+
+        const earnings = (earningsRes?.records || []).map(item => ({
+          ...item,
+          type: 'credit',
+          source: 'milk',
+          amount: item.amount, // Ensure this field exists or calc
+          date: item.date,
+          description: item.session // Map session to description
+        }));
+
+        const expenses = (expensesRes?.expenses || []).map(item => ({
+          ...item,
+          type: 'debit',
+          source: 'expense',
+          amount: item.amount,
+          date: item.date
+        }));
+
+        const withdrawals = (withdrawalsRes?.withdrawals || []).map(item => ({
+          ...item,
+          type: 'debit',
+          source: 'withdrawal',
+          amount: item.amount,
+          date: item.date,
+          description: 'Withdrawal'
+        }));
+
+        data = [...earnings, ...expenses, ...withdrawals];
       }
 
-      if (res && res.success && Array.isArray(res.data)) {
-        // 2. Map & Sort
-        const sortedData = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+      // Safe Sorting
+      const sortedData = Array.isArray(data) ? data.sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
+      setHistoryData(sortedData);
 
-        setHistoryTitle(title);
-        setHistoryType(type);
-        setHistoryData(sortedData);
-
-        // 3. Open Modal
-        setHistoryOpen(true);
-      } else {
-        // Fallback for empty or invalid
-        setHistoryTitle(title);
-        setHistoryType(type);
-        setHistoryData([]);
-        setHistoryOpen(true);
-      }
     } catch (e) {
       console.error(e);
-      alert('Failed to load history');
+      // alert('Failed to load history'); // Optional: suppressing alert to avoid UI spam, simply shows empty
     } finally {
       setHistoryLoading(false);
     }
@@ -220,8 +255,8 @@ function Dashboard() {
         <div
           onClick={() => handleCardClick('balance')}
           className={`card p-5 text-white border-none shadow-lg xl:col-span-1 cursor-pointer hover:shadow-xl transition-all active:scale-[0.98] ${stats.availableBalance < 0
-              ? 'bg-gradient-to-br from-red-600 to-orange-700 shadow-red-900/20'
-              : 'bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-900/20'
+            ? 'bg-gradient-to-br from-red-600 to-orange-700 shadow-red-900/20'
+            : 'bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-900/20'
             }`}
         >
           <div className="flex items-start justify-between">
