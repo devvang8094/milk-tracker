@@ -49,24 +49,7 @@ function Withdraw() {
             return;
         }
 
-        // Logic for balance check
-        // If adding: val must be <= availableBalance
-        // If editing: val must be <= availableBalance + oldAmount
-        let maxAllowed = availableBalance;
-
-        if (editingId) {
-            // Find old amount
-            const oldRecord = history.find(h => h.id === editingId);
-            if (oldRecord) {
-                maxAllowed += parseFloat(oldRecord.amount);
-            }
-        }
-
-        if (val > maxAllowed) {
-            setError(`Insufficient funds! Available for this: ₹${maxAllowed.toFixed(2)}`);
-            setLoading(false);
-            return;
-        }
+        // Logic for balance check removed (Negative allowed)
 
         try {
             if (editingId) {

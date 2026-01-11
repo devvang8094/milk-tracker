@@ -50,18 +50,7 @@ function AddExpense() {
       return;
     }
 
-    // Check balance (optional but implemented for safety/consistency)
-    let maxAllowed = availableBalance;
-    if (editingId) {
-      const oldRecord = history.find(h => h.id === editingId);
-      if (oldRecord) maxAllowed += parseFloat(oldRecord.amount);
-    }
-
-    if (val > maxAllowed) {
-      setError(`Insufficient funds! Available: ₹${maxAllowed.toFixed(2)}`);
-      setLoading(false);
-      return;
-    }
+    // Check balance removed (Negative allowed)
 
     try {
       if (editingId) {

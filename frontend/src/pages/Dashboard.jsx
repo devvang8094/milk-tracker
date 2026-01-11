@@ -134,18 +134,21 @@ function Dashboard() {
         </div>
 
         {/* BALANCE */}
-        <div className="card p-5 bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-none shadow-lg shadow-blue-900/20 xl:col-span-1">
+        <div className={`card p-5 text-white border-none shadow-lg xl:col-span-1 ${stats.availableBalance < 0
+          ? 'bg-gradient-to-br from-red-600 to-orange-700 shadow-red-900/20'
+          : 'bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-900/20'
+          }`}>
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-blue-100 text-sm font-medium mb-1">{t('available_balance')}</p>
-              <h3 className="text-3xl font-bold">₹ {Math.max(stats.availableBalance, 0).toLocaleString()}</h3>
+              <p className="text-white/80 text-sm font-medium mb-1">{t('available_balance')}</p>
+              <h3 className="text-3xl font-bold">₹ {stats.availableBalance.toLocaleString()}</h3>
             </div>
             <div className="p-2 bg-white/20 rounded-lg">
               <Wallet className="text-white" size={24} />
             </div>
           </div>
           {stats.availableBalance < 0 && (
-            <div className="mt-3 bg-red-500 text-white text-xs px-2 py-1 rounded inline-block font-bold animate-pulse">
+            <div className="mt-3 bg-black/20 text-white text-xs px-2 py-1 rounded inline-block font-bold">
               {t('overdraft_warning').replace('{amount}', Math.abs(stats.availableBalance).toLocaleString())}
             </div>
           )}
