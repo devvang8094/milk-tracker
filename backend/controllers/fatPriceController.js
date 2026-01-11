@@ -13,11 +13,13 @@ export const getFatPrice = async (req, res) => {
     const userId = req.userId;
 
     // Fetch the single rate for user
+    const rows = await query('SELECT price_per_fat FROM fat_prices WHERE user_id = $1', [userId]);
+
     let price = 9; // Default to 9 if not found (auto-heal)
     if (rows.length > 0) {
       price = parseFloat(rows[0].price_per_fat);
     } else {
-      await query('INSERT INTO fat_prices (user_id, price_per_fat) VALUES (?, 9.00)', [userId]);
+      await query('INSERT INTO fat_prices (user_id, price_per_fat) VALUES ($1, 9.00)', [userId]);
     }
 
     res.json({
@@ -51,16 +53,16 @@ export const updateFatPrice = async (req, res) => {
     }
 
     // Check if exists
-    const rows = await query('SELECT id FROM fat_prices WHERE user_id = ?', [userId]);
+    const rows = await query('SELECT id FROM fat_prices WHERE user_id = $1', [userId]);
 
     if (rows.length > 0) {
       await query(
-        'UPDATE fat_prices SET price_per_fat = ? WHERE user_id = ?',
+        'UPDATE fat_prices SET price_per_fat = $1 WHERE user_id = $2',
         [rate, userId]
       );
     } else {
       await query(
-        'INSERT INTO fat_prices (user_id, price_per_fat) VALUES (?, ?)',
+        'INSERT INTO fat_prices (user_id, price_per_fat) VALUES ($1, $2)',
         [userId, rate]
       );
     }

@@ -20,19 +20,19 @@ export const getDashboardStats = async (req, res) => {
 
     // Total earnings from milk
     const incomeRows = await query(
-      'SELECT COALESCE(SUM(amount), 0) AS total FROM milk_records WHERE user_id = ?',
+      'SELECT COALESCE(SUM(amount), 0) AS total FROM milk_records WHERE user_id = $1',
       [userId]
     );
 
     // Total expenses
     const expenseRows = await query(
-      'SELECT COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = ?',
+      'SELECT COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = $1',
       [userId]
     );
 
     // Total withdrawals
     const withdrawalRows = await query(
-      'SELECT COALESCE(SUM(amount), 0) AS total FROM withdrawals WHERE user_id = ?',
+      'SELECT COALESCE(SUM(amount), 0) AS total FROM withdrawals WHERE user_id = $1',
       [userId]
     );
 

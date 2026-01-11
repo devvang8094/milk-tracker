@@ -1,11 +1,8 @@
--- Database Schema for Milk Tracker
-
-CREATE DATABASE IF NOT EXISTS milk_tracker;
-USE milk_tracker;
+-- Database Schema for Milk Tracker (PostgreSQL)
 
 -- Users Table
 CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     phone_number VARCHAR(15) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -13,19 +10,19 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Fat Prices Table (One per user - Simple Rate)
 CREATE TABLE IF NOT EXISTS fat_prices (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
     price_per_fat DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Milk Records Table
 CREATE TABLE IF NOT EXISTS milk_records (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
     date DATE NOT NULL,
-    session ENUM('morning', 'night') NOT NULL,
+    session VARCHAR(10) CHECK (session IN ('morning', 'night')) NOT NULL,
     litres DECIMAL(10, 2) NOT NULL,
     fat_percentage DECIMAL(5, 2) NOT NULL,
     rate_per_fat DECIMAL(5, 2) NOT NULL DEFAULT 0.00,
@@ -34,13 +31,10 @@ CREATE TABLE IF NOT EXISTS milk_records (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Fat Slabs Table (DEPRECATED - REMOVE IF FRESH INSTALL)
--- CREATE TABLE IF NOT EXISTS fat_slabs ...
-
 -- Expenses Table
 CREATE TABLE IF NOT EXISTS expenses (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     description VARCHAR(255) NOT NULL,
     date DATE NOT NULL,
@@ -50,8 +44,8 @@ CREATE TABLE IF NOT EXISTS expenses (
 
 -- Withdrawals Table
 CREATE TABLE IF NOT EXISTS withdrawals (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     date DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -46,8 +46,9 @@ export const signup = async (req, res) => {
     }
 
     // Check if user already exists
+    // Check if user already exists
     const existingUser = await query(
-      'SELECT id FROM users WHERE phone_number = ?',
+      'SELECT id FROM users WHERE phone_number = $1',
       [phoneNumber]
     );
 
@@ -63,15 +64,15 @@ export const signup = async (req, res) => {
 
     // Insert user
     const result = await query(
-      'INSERT INTO users (phone_number, password) VALUES (?, ?)',
+      'INSERT INTO users (phone_number, password) VALUES ($1, $2) RETURNING id',
       [phoneNumber, hashedPassword]
     );
 
-    const userId = result.insertId;
+    const userId = result[0].id;
 
     // Initialize fat price for user with default 0
     await query(
-      'INSERT INTO fat_prices (user_id, price_per_fat) VALUES (?, ?)',
+      'INSERT INTO fat_prices (user_id, price_per_fat) VALUES ($1, $2)',
       [userId, 0]
     );
 
@@ -120,7 +121,7 @@ export const login = async (req, res) => {
 
     // Find user
     const users = await query(
-      'SELECT id, phone_number, password FROM users WHERE phone_number = ?',
+      'SELECT id, phone_number, password FROM users WHERE phone_number = $1',
       [phoneNumber]
     );
 

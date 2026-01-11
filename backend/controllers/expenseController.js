@@ -30,7 +30,8 @@ export const addExpense = async (req, res) => {
     await query(
       `
       INSERT INTO expenses (user_id, amount, description, date)
-      VALUES (?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id
       `,
       [userId, amount, description, date]
     );
@@ -61,7 +62,7 @@ export const getExpenses = async (req, res) => {
       `
       SELECT id, amount, description, date
       FROM expenses
-      WHERE user_id = ?
+      WHERE user_id = $1
       ORDER BY date DESC
       `,
       [userId]
@@ -101,8 +102,8 @@ export const updateExpense = async (req, res) => {
     const result = await query(
       `
       UPDATE expenses
-      SET amount = ?, description = ?, date = ?
-      WHERE id = ? AND user_id = ?
+      SET amount = $1, description = $2, date = $3
+      WHERE id = $4 AND user_id = $5
       `,
       [amount, description, date, expenseId, userId]
     );
@@ -140,7 +141,7 @@ export const deleteExpense = async (req, res) => {
     const result = await query(
       `
       DELETE FROM expenses
-      WHERE id = ? AND user_id = ?
+      WHERE id = $1 AND user_id = $2
       `,
       [expenseId, userId]
     );

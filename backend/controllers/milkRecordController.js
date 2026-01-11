@@ -52,7 +52,7 @@ export const addMilkRecord = async (req, res) => {
 
     // 3. Save to DB
     const result = await query(
-      'INSERT INTO milk_records (user_id, date, session, litres, fat_percentage, rate_per_fat, amount) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO milk_records (user_id, date, session, litres, fat_percentage, rate_per_fat, amount) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       [userId, date, session, litres, fat_percentage, ratePerFat, amount]
     );
 
@@ -88,7 +88,7 @@ export const getMilkRecords = async (req, res) => {
       `
       SELECT id, date, session, litres, fat_percentage, rate_per_fat, amount
       FROM milk_records
-      WHERE user_id = ?
+      WHERE user_id = $1
       ORDER BY date DESC
       `,
       [userId]
@@ -152,8 +152,8 @@ export const updateMilkRecord = async (req, res) => {
     const result = await query(
       `
       UPDATE milk_records 
-      SET date = ?, session = ?, litres = ?, fat_percentage = ?, rate_per_fat = ?, amount = ?
-      WHERE id = ? AND user_id = ?
+      SET date = $1, session = $2, litres = $3, fat_percentage = $4, rate_per_fat = $5, amount = $6
+      WHERE id = $7 AND user_id = $8
       `,
       [date, session, litres, fat_percentage, ratePerFat, amount, recordId, userId]
     );
@@ -184,7 +184,7 @@ export const deleteMilkRecord = async (req, res) => {
     const recordId = req.params.id;
 
     const result = await query(
-      'DELETE FROM milk_records WHERE id = ? AND user_id = ?',
+      'DELETE FROM milk_records WHERE id = $1 AND user_id = $2',
       [recordId, userId]
     );
 

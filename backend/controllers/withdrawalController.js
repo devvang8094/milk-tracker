@@ -30,7 +30,8 @@ export const addWithdrawal = async (req, res) => {
     await query(
       `
       INSERT INTO withdrawals (user_id, amount, date)
-      VALUES (?, ?, ?)
+      VALUES ($1, $2, $3)
+      RETURNING id
       `,
       [userId, amount, date]
     );
@@ -61,7 +62,7 @@ export const getWithdrawals = async (req, res) => {
       `
       SELECT id, amount, date
       FROM withdrawals
-      WHERE user_id = ?
+      WHERE user_id = $1
       ORDER BY date DESC
       `,
       [userId]
@@ -101,8 +102,8 @@ export const updateWithdrawal = async (req, res) => {
     const result = await query(
       `
       UPDATE withdrawals
-      SET amount = ?, date = ?
-      WHERE id = ? AND user_id = ?
+      SET amount = $1, date = $2
+      WHERE id = $3 AND user_id = $4
       `,
       [amount, date, withdrawalId, userId]
     );
@@ -140,7 +141,7 @@ export const deleteWithdrawal = async (req, res) => {
     const result = await query(
       `
       DELETE FROM withdrawals
-      WHERE id = ? AND user_id = ?
+      WHERE id = $1 AND user_id = $2
       `,
       [withdrawalId, userId]
     );

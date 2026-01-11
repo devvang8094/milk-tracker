@@ -1,25 +1,25 @@
 /**
- * Database Configuration
+ * Database Configuration (PostgreSQL)
  *
  * Purpose:
- * - Create a MySQL connection pool
+ * - Create a PostgreSQL connection pool using pg
  * - Provide a reusable query function
  * - Keep DB logic separate from controllers
  */
 
-import mysql from 'mysql2/promise';
+import pkg from 'pg';
+const { Pool } = pkg;
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Create MySQL connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  queueLimit: 0
+// Create PostgreSQL connection pool
+// Uses DATABASE_URL from environment variables for connection string
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Required for Neon free tier
+  }
 });
 
 export const db = pool;
@@ -31,17 +31,23 @@ export const db = pool;
  * @returns {Promise<Array>}
  */
 export const query = async (sql, params = []) => {
-  const [rows] = await pool.execute(sql, params);
+  const result = await pool.query(sql, params);
+  const rows = result.rows;
+
+  // MySQL compatibility
+  rows.affectedRows = result.rowCount;
+  rows.insertId = (rows.length > 0 && rows[0].id) ? rows[0].id : null;
+
   return rows;
 };
 
 // Test database connection (on server start)
 export const testConnection = async () => {
   try {
-    await pool.query('SELECT 1');
-    console.log('✅ MySQL connected successfully');
+    const res = await pool.query('SELECT 1');
+    console.log('✅ PostgreSQL connected successfully');
   } catch (error) {
-    console.error('❌ MySQL connection failed:', error.message);
+    console.error('❌ PostgreSQL connection failed:', error.message);
     process.exit(1);
   }
 };

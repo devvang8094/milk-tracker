@@ -34,9 +34,9 @@ export const updateFatRate = async (req, res) => {
 
         const rows = await query('SELECT id FROM fat_rate_config LIMIT 1');
         if (rows.length === 0) {
-            await query('INSERT INTO fat_rate_config (rate_per_fat) VALUES (?)', [val]);
+            await query('INSERT INTO fat_rate_config (rate_per_fat) VALUES ($1)', [val]);
         } else {
-            await query('UPDATE fat_rate_config SET rate_per_fat = ?', [val]);
+            await query('UPDATE fat_rate_config SET rate_per_fat = $1', [val]);
         }
 
         res.json({ success: true, ratePerFat: val, message: 'Fat rate updated' });
