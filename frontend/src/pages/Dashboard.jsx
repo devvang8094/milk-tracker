@@ -143,7 +143,8 @@ function Dashboard() {
           source: 'milk',
           amount: item.amount, // Ensure this field exists or calc
           date: item.date,
-          description: item.session // Map session to description
+          created_at: item.created_at, // Ensure passthrough
+          description: item.session
         }));
 
         const expenses = (expensesRes?.expenses || []).map(item => ({
@@ -151,7 +152,8 @@ function Dashboard() {
           type: 'debit',
           source: 'expense',
           amount: item.amount,
-          date: item.date
+          date: item.date,
+          created_at: item.created_at
         }));
 
         const withdrawals = (withdrawalsRes?.withdrawals || []).map(item => ({
@@ -160,14 +162,24 @@ function Dashboard() {
           source: 'withdrawal',
           amount: item.amount,
           date: item.date,
-          description: 'Withdrawal'
+          created_at: item.created_at,
+          description: 'withdrawal' // Lowercase key for translation translation lookup if needed
         }));
 
         data = [...earnings, ...expenses, ...withdrawals];
       }
 
-      // Safe Sorting
-      const sortedData = Array.isArray(data) ? data.sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
+      // Safe Sorting: Sort by DATE DESC, then CREATED_AT DESC (Latest first)
+      const sortedData = Array.isArray(data) ? data.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateB - dateA;
+        }
+        // If dates are same, use created_at
+        return new Date(b.created_at || b.date) - new Date(a.created_at || a.date);
+      }) : [];
+
       setHistoryData(sortedData);
 
     } catch (e) {

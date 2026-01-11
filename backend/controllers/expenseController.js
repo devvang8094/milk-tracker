@@ -60,7 +60,7 @@ export const getExpenses = async (req, res) => {
 
     const rows = await query(
       `
-      SELECT id, amount, description, date
+      SELECT id, amount, description, date, created_at
       FROM expenses
       WHERE user_id = $1
       ORDER BY date DESC

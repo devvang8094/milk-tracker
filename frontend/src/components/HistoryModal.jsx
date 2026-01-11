@@ -26,12 +26,12 @@ export default function HistoryModal({ isOpen, onClose, title, data, type, loadi
                 <div className="flex-1 overflow-y-auto p-4">
                     {loading ? (
                         <div className="flex justify-center items-center h-full text-slate-400">
-                            <div className="animate-pulse">Loading history...</div>
+                            <div className="animate-pulse">{t('loading') || 'Loading...'}</div>
                         </div>
                     ) : items.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
                             <Calendar size={48} className="opacity-20" />
-                            <p>No records found</p>
+                            <p>{t('no_records_found')}</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
@@ -47,13 +47,26 @@ export default function HistoryModal({ isOpen, onClose, title, data, type, loadi
 }
 
 function HistoryItem({ item, type }) {
+    const { t } = useLanguage();
     const date = new Date(item.date).toLocaleDateString();
 
     if (type === 'balance') {
         const isCredit = item.type === 'credit';
+        // Ensure color classes are secure
         const colorClass = isCredit ? 'text-green-600' : 'text-red-600';
         const bgClass = isCredit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600';
-        const Icon = isCredit ? Droplet : DollarSign; // Droplet for milk, Dollar for money out
+        const Icon = isCredit ? Droplet : DollarSign;
+
+        // Description Translation Logic
+        let displayDesc = item.description;
+        if (item.source === 'milk') {
+            // item.description is 'morning' or 'night'
+            displayDesc = item.description === 'morning' ? t('morning_milk') : t('night_milk');
+        } else if (item.source === 'withdrawal') {
+            displayDesc = t('withdrawal');
+        } else if (item.source === 'expense') {
+            displayDesc = item.description; // User typed description, keep as is
+        }
 
         return (
             <div className={`p-3 bg-white border rounded-xl shadow-sm flex items-center justify-between ${isCredit ? 'border-green-100' : 'border-red-100'}`}>
@@ -64,7 +77,7 @@ function HistoryItem({ item, type }) {
                     <div>
                         <p className="text-sm font-medium text-slate-900">{date}</p>
                         <p className="text-xs text-slate-500 capitalize">
-                            {item.source === 'milk' ? `${item.description} Milk` : item.description || item.source}
+                            {displayDesc}
                         </p>
                     </div>
                 </div>
@@ -72,7 +85,9 @@ function HistoryItem({ item, type }) {
                     <p className={`font-bold ${colorClass}`}>
                         {isCredit ? '+' : '-'} ₹{parseFloat(item.amount).toFixed(2)}
                     </p>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">{item.type}</p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">
+                        {item.type === 'credit' ? t('credit') : t('debit')}
+                    </p>
                 </div>
             </div>
         );
@@ -87,7 +102,7 @@ function HistoryItem({ item, type }) {
                     </div>
                     <div>
                         <p className="text-sm font-medium text-slate-900">{date}</p>
-                        <p className="text-xs text-slate-500">Rate Record</p>
+                        <p className="text-xs text-slate-500">{t('fat_price_label')}</p>
                     </div>
                 </div>
                 <p className="font-bold text-slate-900">₹{item.rate}/fat</p>
@@ -105,11 +120,11 @@ function HistoryItem({ item, type }) {
                     <div>
                         <p className="text-sm font-medium text-slate-900">{date}</p>
                         <div className="text-xs text-slate-500 flex gap-2">
-                            <span className="capitalize">{item.session}</span>
+                            <span className="capitalize">{item.session === 'morning' ? t('morning_milk') : t('night_milk')}</span>
                             <span>•</span>
                             <span>{item.litres} L</span>
                             <span>•</span>
-                            <span>{item.fat_percentage}% Fat</span>
+                            <span>{item.fat_percentage}% {t('fat_price_label') ? 'Fat' : 'Fat'}</span>
                         </div>
                     </div>
                 </div>
@@ -147,7 +162,7 @@ function HistoryItem({ item, type }) {
                     </div>
                     <div>
                         <p className="text-sm font-medium text-slate-900">{date}</p>
-                        <p className="text-xs text-slate-400">Withdrawal</p>
+                        <p className="text-xs text-slate-400">{t('withdrawal')}</p>
                     </div>
                 </div>
                 <p className="font-bold text-purple-600">- ₹{item.amount}</p>

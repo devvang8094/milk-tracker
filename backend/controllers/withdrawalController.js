@@ -60,7 +60,7 @@ export const getWithdrawals = async (req, res) => {
 
     const rows = await query(
       `
-      SELECT id, amount, date
+      SELECT id, amount, date, created_at
       FROM withdrawals
       WHERE user_id = $1
       ORDER BY date DESC

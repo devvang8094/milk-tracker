@@ -86,7 +86,7 @@ export const getMilkRecords = async (req, res) => {
 
     const rows = await query(
       `
-      SELECT id, date, session, litres, fat_percentage, rate_per_fat, amount
+      SELECT id, date, session, litres, fat_percentage, rate_per_fat, amount, created_at
       FROM milk_records
       WHERE user_id = $1
       ORDER BY date DESC
