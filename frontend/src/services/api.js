@@ -1,4 +1,11 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const ENV_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+if (!ENV_BASE_URL) {
+  throw new Error('VITE_API_BASE_URL is not defined in environment variables');
+}
+
+// Remove trailing slash if present
+const CLEAN_BASE_URL = ENV_BASE_URL.replace(/\/$/, '');
 
 // Helper to handle requests
 async function request(endpoint, options = {}) {
@@ -8,7 +15,11 @@ async function request(endpoint, options = {}) {
     ? { Authorization: `Bearer ${token}` }
     : {};
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  // Ensure endpoint starts with /, and prepend /api
+  // Result: https://domain.com/api/auth/login
+  const url = `${CLEAN_BASE_URL}/api${endpoint}`;
+
+  const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
