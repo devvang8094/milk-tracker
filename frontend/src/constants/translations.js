@@ -1,7 +1,7 @@
 export const translations = {
     en: {
         // Global
-        app_name: "Milk Tracker",
+        app_name: "Milk Book",
         dashboard: "Dashboard",
         add_milk: "Add Milk",
         add_expense: "Add Expense",
@@ -87,7 +87,7 @@ export const translations = {
 
     hi: {
         // Global
-        app_name: "दुग्ध डायरी",
+        app_name: "मिल्क बुक",
         dashboard: "डैशबोर्ड",
         add_milk: "दूध डालें",
         add_expense: "खर्च जोड़ें",

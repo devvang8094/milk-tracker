@@ -52,7 +52,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             {/* Sidebar Header */}
             <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100">
                 <div className="flex items-center gap-2 text-primary font-bold text-xl">
-                    <span>🥛</span>
+                    <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
                     <span>{t('app_name')}</span>
                 </div>
                 <button
