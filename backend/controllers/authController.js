@@ -78,7 +78,7 @@ export const signup = async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { userId },
+      { id: userId },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -146,7 +146,7 @@ export const login = async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { userId: user.id },
+      { id: user.id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -177,7 +177,10 @@ export const login = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    const userId = req.user.id;
 
     // Delete related data first
     await query('DELETE FROM milk_records WHERE user_id = $1', [userId]);
