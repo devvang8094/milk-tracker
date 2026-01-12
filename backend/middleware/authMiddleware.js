@@ -13,7 +13,12 @@ const authMiddleware = (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = { userId: decoded.userId };
+
+        if (!decoded || !decoded.userId) {
+            return res.status(401).json({ success: false, message: 'Invalid token: Missing User ID' });
+        }
+
+        req.user = { userId: decoded.userId, phone: decoded.phone };
         next();
     } catch (error) {
         // console.error('Auth error:', error.message); // Clean failure, no spam

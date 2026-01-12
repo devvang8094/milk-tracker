@@ -17,6 +17,9 @@ import { query } from '../config/database.js';
 export const addMilkRecord = async (req, res) => {
   try {
     const userId = req.user.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing User ID' });
+    }
     const { date, session, litres, fat_percentage } = req.body;
 
     if (!date || !session || !litres || !fat_percentage) {
@@ -83,6 +86,9 @@ export const addMilkRecord = async (req, res) => {
 export const getMilkRecords = async (req, res) => {
   try {
     const userId = req.user.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing User ID' });
+    }
 
     const rows = await query(
       `
@@ -116,6 +122,9 @@ export const getMilkRecords = async (req, res) => {
 export const updateMilkRecord = async (req, res) => {
   try {
     const userId = req.user.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing User ID' });
+    }
     const recordId = req.params.id;
     const { date, session, litres, fat_percentage } = req.body;
 
@@ -181,6 +190,9 @@ export const updateMilkRecord = async (req, res) => {
 export const deleteMilkRecord = async (req, res) => {
   try {
     const userId = req.user.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing User ID' });
+    }
     const recordId = req.params.id;
 
     const result = await query(
