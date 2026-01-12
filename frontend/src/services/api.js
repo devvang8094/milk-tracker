@@ -17,27 +17,40 @@ async function request(endpoint, options = {}) {
 
   // Ensure endpoint starts with /, and prepend /api
   // Result: https://domain.com/api/auth/login
-  const url = `${CLEAN_BASE_URL}/api${endpoint}`;
+  const url = `${CLEAN_BASE_URL}/api${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-      ...authHeader,
-    },
-    ...options,
-  });
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        ...authHeader,
+      },
+      ...options,
+    });
 
-  if (!response.ok) {
     const text = await response.text();
-    throw new Error(text || 'API request failed');
-  }
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      data = { message: text || 'Unknown response' };
+    }
 
-  // Handle empty responses (e.g., 204 No Content) or verify if valid JSON
-  const text = await response.text();
-  return text ? JSON.parse(text) : {};
+    if (!response.ok) {
+      const errorMessage = data.message || data.error || 'API request failed';
+      throw new Error(errorMessage);
+    }
+
+    return data;
+  } catch (error) {
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new Error('Network error. Please check your connection.');
+    }
+    throw error;
+  }
 }
 
 // AUTH
